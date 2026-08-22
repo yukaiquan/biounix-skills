@@ -28,6 +28,7 @@ def parse_vcf(vcf_path, header_path, out_tsv):
 
     rows = []
     variant_info = None
+    gt_counter = Counter()
     with open(vcf_path) as f:
         for line in f:
             if line.startswith('#'):
@@ -40,6 +41,7 @@ def parse_vcf(vcf_path, header_path, out_tsv):
             for name, sd in zip(samples, samples_data):
                 fields = dict(zip(fmt_keys, sd.split(':')))
                 gt = fields.get('GT', './.')
+                gt_counter[gt] += 1
                 if gt == '0/0':
                     base = ref
                 elif gt in ('0/1', '1/0'):
@@ -59,7 +61,6 @@ def parse_vcf(vcf_path, header_path, out_tsv):
         with open(out_tsv + '.variant.txt', 'w') as vf:
             vf.write(variant_info + '\n')
 
-    gt_counter = Counter(sd.split(':')[0] for _, sd, _ in rows)
     return len(rows), gt_counter
 
 

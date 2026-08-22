@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-[LEGACY / DEPRECATED] Receive genotype TSV data from the browser via HTTP POST.
+[DEPRECATED] Receive genotype TSV data from the browser via HTTP POST.
 
 This script belongs to the OLD browser-based workflow (local HTTP receiver + browser JS
-fetch). It is kept for reference only. The current workflow queries the VCF directly with
-tabix — do NOT start this server for new queries.
+fetch). It is kept for reference only. Do NOT start this server for new queries.
 
 Usage:
     python3 receive_tsv.py <output_file> [port]
@@ -55,5 +54,5 @@ def main():
         httpd.serve_forever()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -1,8 +1,8 @@
-# 复用页面 WASM 工具查询位点（Windows 优先）
+# 复用页面 WASM 工具查询位点（Windows 备选）
 
 OatBioDB 的 vhub 页面本身用 **biowasm (aioli) + htslib/bcftools 1.10 (WebAssembly)** 在浏览器内
 直接读取远程 VCF.gz + CSI 索引查询位点。我们可以在页面上下文**直接复用这套工具**，完全不需要
-本地 tabix、不需要下载安装任何东西。**Windows 环境优先使用本方案。**
+本地 tabix、不需要下载安装任何东西。**仅 Windows 环境且无 tabix 时使用。**
 
 ## 原理
 
@@ -42,7 +42,7 @@ const csi = meta.vcfcsi;    // 对应 CSI 索引
 ### 5. 查询位点并解析
 ```js
 const r = await qt(`bcftools view -r ${chr}:${pos}-${pos} `, vcf, csi);
-// r.stdout 为 VCF 文本（含 #CHROM 表头行 + 变异行 + 666 个样本列）
+// r.stdout 为 VCF 文本（含 #CHROM 表头行 + 变异行 + 样本列）
 // r.stderr 通常有无害警告（如 PL 声明），可忽略
 ```
 
@@ -71,9 +71,8 @@ const tsv = 'Sample\tInfo\tBase\n' + rows.join('\n');
 // tsv 即完整基因型表；gtCount 即基因型统计
 ```
 
-### 7. 落盘 TSV（可选）
-把 `tsv` 内容 POST 到本地接收服务（用技能自带 `scripts/receive_tsv.py`）写文件，
-或直接展示给用户。落盘方式与 tabix 方案一致。
+### 7. 展示结果
+直接将 TSV 内容和基因型统计展示给用户。无需启动本地 HTTP 服务。
 
 ## 注意事项
 - worker 文件名带 hash（如 `oatbiodbworker-hneaYbkB.js`），**每次都要动态发现**，不要硬编码。
@@ -81,4 +80,4 @@ const tsv = 'Sample\tInfo\tBase\n' + rows.join('\n');
   `'bcftools view -r chr1A:5127200-5127200 '`）。
 - 位点格式 `chr:pos-pos`（End 包含边界，单一位点不要 +1）。
 - 首次查询 wasm 懒加载需几秒，属正常。
-- 若 `mod.d` 不存在（页面改版），回退到 tabix 直查方案（见 SKILL.md 方案 B）。
+- 若 `mod.d` 不存在（页面改版），回退到 tabix 直查方案（见 SKILL.md 方案 A）。
